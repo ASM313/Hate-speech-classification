@@ -3,8 +3,8 @@ from src.logger import logging
 from src.exception import CustomException
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transforamation import DataTransformation
-# from src.components.model_trainer import ModelTrainer
-# from src.components.model_evaluation import ModelEvaluation
+from src.components.model_trainer import ModelTrainer
+from src.components.model_evaluation import ModelEvaluation
 # from src.components.model_pusher import ModelPusher
 
 from src.entity.config_entity import (DataIngestionConfig,
@@ -28,9 +28,6 @@ class TrainPipeline:
         self.model_evaluation_config =ModelEvaluationConfig()
         self.model_pusher_config = ModelPusherConfig()
 
-
-    
-
     def start_data_ingestion(self) -> DataIngestionArtifacts:
         logging.info("Entered the start_data_ingestion method of TrainPipeline class")
         try:
@@ -45,7 +42,6 @@ class TrainPipeline:
         except Exception as e:
             raise CustomException(e, sys) from e
         
-    
 
     def start_data_transformation(self, data_ingestion_artifacts = DataIngestionArtifacts) -> DataTransformationArtifacts:
         logging.info("Entered the start_data_transformation method of TrainPipeline class")
@@ -62,41 +58,35 @@ class TrainPipeline:
 
         except Exception as e:
             raise CustomException(e, sys) from e
+      
+    def start_model_trainer(self, data_transformation_artifacts: DataTransformationArtifacts) -> ModelTrainerArtifacts:
+        logging.info(
+            "Entered the start_model_trainer method of TrainPipeline class"
+        )
+        try:
+            model_trainer = ModelTrainer(data_transformation_artifacts=data_transformation_artifacts,
+                                        model_trainer_config=self.model_trainer_config
+                                        )
+            model_trainer_artifacts = model_trainer.initiate_model_trainer()
+            logging.info("Exited the start_model_trainer method of TrainPipeline class")
+            return model_trainer_artifacts
+
+        except Exception as e:
+            raise CustomException(e, sys) 
         
+    def start_model_evaluation(self, model_trainer_artifacts: ModelTrainerArtifacts, data_transformation_artifacts: DataTransformationArtifacts) -> ModelEvaluationArtifacts:
+        logging.info("Entered the start_model_evaluation method of TrainPipeline class")
+        try:
+            model_evaluation = ModelEvaluation(data_transformation_artifacts = data_transformation_artifacts,
+                                                model_evaluation_config=self.model_evaluation_config,
+                                                model_trainer_artifacts=model_trainer_artifacts)
 
-    
-    # def start_model_trainer(self, data_transformation_artifacts: DataTransformationArtifacts) -> ModelTrainerArtifacts:
-    #     logging.info(
-    #         "Entered the start_model_trainer method of TrainPipeline class"
-    #     )
-    #     try:
-    #         model_trainer = ModelTrainer(data_transformation_artifacts=data_transformation_artifacts,
-    #                                     model_trainer_config=self.model_trainer_config
-    #                                     )
-    #         model_trainer_artifacts = model_trainer.initiate_model_trainer()
-    #         logging.info("Exited the start_model_trainer method of TrainPipeline class")
-    #         return model_trainer_artifacts
+            model_evaluation_artifacts = model_evaluation.initiate_model_evaluation()
+            logging.info("Exited the start_model_evaluation method of TrainPipeline class")
+            return model_evaluation_artifacts
 
-    #     except Exception as e:
-    #         raise CustomException(e, sys) 
-        
-
-    
-    # def start_model_evaluation(self, model_trainer_artifacts: ModelTrainerArtifacts, data_transformation_artifacts: DataTransformationArtifacts) -> ModelEvaluationArtifacts:
-    #     logging.info("Entered the start_model_evaluation method of TrainPipeline class")
-    #     try:
-    #         model_evaluation = ModelEvaluation(data_transformation_artifacts = data_transformation_artifacts,
-    #                                             model_evaluation_config=self.model_evaluation_config,
-    #                                             model_trainer_artifacts=model_trainer_artifacts)
-
-    #         model_evaluation_artifacts = model_evaluation.initiate_model_evaluation()
-    #         logging.info("Exited the start_model_evaluation method of TrainPipeline class")
-    #         return model_evaluation_artifacts
-
-    #     except Exception as e:
-    #         raise CustomException(e, sys) from e
-        
-    
+        except Exception as e:
+            raise CustomException(e, sys) from e
 
     # def start_model_pusher(self,) -> ModelPusherArtifacts:
     #     logging.info("Entered the start_model_pusher method of TrainPipeline class")
@@ -124,15 +114,15 @@ class TrainPipeline:
                 data_ingestion_artifacts=data_ingestion_artifacts
             )
 
-            # model_trainer_artifacts = self.start_model_trainer(
-            #     data_transformation_artifacts=data_transformation_artifacts
-            # )
+            model_trainer_artifacts = self.start_model_trainer(
+                data_transformation_artifacts=data_transformation_artifacts
+            )
 
-            # model_evaluation_artifacts = self.start_model_evaluation(model_trainer_artifacts=model_trainer_artifacts,data_transformation_artifacts=data_transformation_artifacts
-            # ) 
+            model_evaluation_artifacts = self.start_model_evaluation(model_trainer_artifacts=model_trainer_artifacts,data_transformation_artifacts=data_transformation_artifacts
+            ) 
 
-            # if not model_evaluation_artifacts.is_model_accepted:
-            #     raise Exception("Trained model is not better than the best model")
+            if not model_evaluation_artifacts.is_model_accepted:
+                raise Exception("Trained model is not better than the best model")
             
             # model_pusher_artifacts = self.start_model_pusher()
 
