@@ -5,12 +5,13 @@ import pandas as pd
 from src.logger import logging
 from src.constants import *
 from src.exception import CustomException
-from src.entity.config_entity import ModelTrainerConfig
-from src.entity.artifact_entity import ModelTrainerArtifacts,DataTransformationArtifacts
-from src.ml.model import ModelArchitecture
 from sklearn.model_selection import train_test_split
 from keras.preprocessing.text import Tokenizer
 from keras.utils import pad_sequences
+from src.entity.config_entity import ModelTrainerConfig
+from src.entity.artifact_entity import ModelTrainerArtifacts,DataTransformationArtifacts
+from src.ml.model import ModelArchitecture
+
 
 
 class ModelTrainer:
@@ -95,7 +96,7 @@ class ModelTrainer:
             logging.info("Model training finished")
 
             
-            with open('tokenizer.pkl', 'wb') as handle:
+            with open('tokenizer.pickle', 'wb') as handle:
                 dill.dump(tokenizer, handle)
             os.makedirs(self.model_trainer_config.TRAINED_MODEL_DIR,exist_ok=True)
 
@@ -117,3 +118,4 @@ class ModelTrainer:
 
         except Exception as e:
             raise CustomException(e, sys) from e
+

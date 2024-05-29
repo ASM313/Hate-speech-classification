@@ -6,6 +6,13 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import LSTM,Activation,Dense,Dropout,Input,Embedding,SpatialDropout1D
 from src.constants import *
 
+from src.entity.config_entity import ModelTrainerConfig
+from keras.models import Sequential
+from keras.optimizers import RMSprop
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.layers import LSTM,Activation,Dense,Dropout,Input,Embedding,SpatialDropout1D
+from src.constants import *
+
 class ModelArchitecture:
 
     def __init__(self):

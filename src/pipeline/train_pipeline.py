@@ -5,7 +5,7 @@ from src.components.data_ingestion import DataIngestion
 from src.components.data_transforamation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.components.model_evaluation import ModelEvaluation
-# from src.components.model_pusher import ModelPusher
+from src.components.model_pusher import ModelPusher
 
 from src.entity.config_entity import (DataIngestionConfig,
                                        DataTransformationConfig,
@@ -58,7 +58,9 @@ class TrainPipeline:
 
         except Exception as e:
             raise CustomException(e, sys) from e
-      
+  
+
+    
     def start_model_trainer(self, data_transformation_artifacts: DataTransformationArtifacts) -> ModelTrainerArtifacts:
         logging.info(
             "Entered the start_model_trainer method of TrainPipeline class"
@@ -74,6 +76,8 @@ class TrainPipeline:
         except Exception as e:
             raise CustomException(e, sys) 
         
+
+    
     def start_model_evaluation(self, model_trainer_artifacts: ModelTrainerArtifacts, data_transformation_artifacts: DataTransformationArtifacts) -> ModelEvaluationArtifacts:
         logging.info("Entered the start_model_evaluation method of TrainPipeline class")
         try:
@@ -87,46 +91,48 @@ class TrainPipeline:
 
         except Exception as e:
             raise CustomException(e, sys) from e
-
-    # def start_model_pusher(self,) -> ModelPusherArtifacts:
-    #     logging.info("Entered the start_model_pusher method of TrainPipeline class")
-    #     try:
-    #         model_pusher = ModelPusher(
-    #             model_pusher_config=self.model_pusher_config,
-    #         )
-    #         model_pusher_artifact = model_pusher.initiate_model_pusher()
-    #         logging.info("Initiated the model pusher")
-    #         logging.info("Exited the start_model_pusher method of TrainPipeline class")
-    #         return model_pusher_artifact
-
-    #     except Exception as e:
-    #         raise CustomException(e, sys) from e
-
         
     
+
+    def start_model_pusher(self,) -> ModelPusherArtifacts:
+        logging.info("Entered the start_model_pusher method of TrainPipeline class")
+        try:
+            model_pusher = ModelPusher(
+                model_pusher_config=self.model_pusher_config,
+            )
+            model_pusher_artifact = model_pusher.initiate_model_pusher()
+            logging.info("Initiated the model pusher")
+            logging.info("Exited the start_model_pusher method of TrainPipeline class")
+            return model_pusher_artifact
+
+        except Exception as e:
+            raise CustomException(e, sys) from e
+   
 
     def run_pipeline(self):
         logging.info("Entered the run_pipeline method of TrainPipeline class")
         try:
             data_ingestion_artifacts = self.start_data_ingestion()
 
-            data_transformation_artifacts = self.start_data_transformation(
-                data_ingestion_artifacts=data_ingestion_artifacts
+            data_transformation_artifacts = self.start_data_transformation(data_ingestion_artifacts=data_ingestion_artifacts
             )
 
             model_trainer_artifacts = self.start_model_trainer(
                 data_transformation_artifacts=data_transformation_artifacts
             )
 
-            model_evaluation_artifacts = self.start_model_evaluation(model_trainer_artifacts=model_trainer_artifacts,data_transformation_artifacts=data_transformation_artifacts
+            model_evaluation_artifacts = self.start_model_evaluation(model_trainer_artifacts=model_trainer_artifacts,
+                                                                    data_transformation_artifacts=data_transformation_artifacts
             ) 
 
             if not model_evaluation_artifacts.is_model_accepted:
                 raise Exception("Trained model is not better than the best model")
             
-            # model_pusher_artifacts = self.start_model_pusher()
+            model_pusher_artifacts = self.start_model_pusher()
 
             logging.info("Exited the run_pipeline method of TrainPipeline class") 
+
+
 
         except Exception as e:
             raise CustomException(e, sys) from e

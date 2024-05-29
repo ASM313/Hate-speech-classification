@@ -70,7 +70,7 @@ class ModelEvaluation:
             print(x_test)
             y_test = pd.read_csv(self.model_trainer_artifacts.y_test_path,index_col=0)
 
-            with open('tokenizer.pkl', 'rb') as handle:
+            with open('tokenizer.pickle', 'rb') as handle:
                 tokenizer = dill.load(handle)
 
             load_model=keras.models.load_model(self.model_trainer_artifacts.trained_model_path)
@@ -117,7 +117,7 @@ class ModelEvaluation:
 
             logging.info("Loading currently trained model")
             trained_model=keras.models.load_model(self.model_trainer_artifacts.trained_model_path)
-            with open('tokenizer.pkl', 'rb') as handle:
+            with open('tokenizer.pickle', 'rb') as handle:
                 load_tokenizer = dill.load(handle)
 
             trained_model_accuracy = self.evaluate()
